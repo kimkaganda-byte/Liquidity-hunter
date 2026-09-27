@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080b10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Liquidity Hunter">
+<title>Liquidity Hunter</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080b10;color:#eef2f7;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+.app{max-width:900px;margin:auto;padding:18px 16px 36px}.top{display:flex;align-items:center;justify-content:space-between;padding:8px 0 18px}
+.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:14px;background:#151c26;display:grid;place-items:center;font-size:23px}
+h1{font-size:22px;margin:0}.sub{color:#8d99a8;font-size:12px;margin-top:3px}.badge{padding:8px 11px;border-radius:999px;background:#102317;color:#61e294;font-size:12px;font-weight:700}
+.card{background:#10151d;border:1px solid #27313e;border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 8px 28px #0003}.row{display:flex;gap:10px}.grow{flex:1}
+label{display:block;color:#98a4b3;font-size:12px;font-weight:700;margin-bottom:7px}
+select,button{width:100%;border:1px solid #303b49;background:#151c26;color:#eef2f7;border-radius:12px;padding:13px;font-size:15px}button{font-weight:700;cursor:pointer}
+button.primary{background:#1677ff;border-color:#1677ff}button.active{background:#123a26;border-color:#2e9d5a;color:#6ff09c}
+.status{font-size:13px;color:#9aa6b5;margin-top:12px}.setup{display:grid;gap:8px;margin-top:12px}
+.step{display:flex;align-items:center;gap:11px;padding:11px;border-radius:12px;background:#0c1118;border:1px solid #222c38}
+.dot{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#202a36;color:#91a0b1;font-size:12px;font-weight:800}.ok{background:#174d2d;color:#6ff09c}
+.step b{font-size:13px}.step span{display:block;color:#84909f;font-size:11px;margin-top:2px}
+.signal{display:none;border-radius:16px;padding:15px;background:#11291c;border:1px solid #2e9d5a;margin-top:14px}.signal.show{display:block}
+.signal h3{margin:0 0 7px;color:#72ee9d}.mini{display:flex;justify-content:space-between;padding:6px 0;color:#aab4c0;font-size:13px}.mini strong{color:#eef2f7}
+.warning{color:#eabf67;font-size:11px;line-height:1.45;margin-top:10px}.footer{color:#657181;text-align:center;font-size:11px;margin-top:22px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top"><div class="brand"><div class="logo">🎯</div><div><h1>Liquidity Hunter</h1><div class="sub">Trading setup dashboard · prototype</div></div></div><div class="badge">DEMO</div></div>
+
+<div class="card">
+<div class="row"><div class="grow"><label>PAIR</label><select id="pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>XAU/USD</option></select></div>
+<div class="grow"><label>TIMEFRAME</label><select id="tf"><option>M15</option><option>M5</option><option>M30</option><option>H1</option></select></div></div>
+<div class="setup">
+<div class="step" id="sweep"><div class="dot">1</div><div><b>Liquidity Sweep</b><span>Waiting for a sweep of a recent high/low</span></div></div>
+<div class="step" id="mss"><div class="dot">2</div><div><b>Structure Shift</b><span>Wait for confirmation after the sweep</span></div></div>
+<div class="step" id="fvg"><div class="dot">3</div><div><b>FVG</b><span>Identify a fresh fair value gap</span></div></div>
+<div class="step" id="ob"><div class="dot">4</div><div><b>Order Block</b><span>Mark the relevant supply/demand zone</span></div></div>
+<div class="step" id="vp"><div class="dot">5</div><div><b>Volume Profile</b><span>Reference the fixed-range profile</span></div></div>
+<div class="step" id="retest"><div class="dot">6</div><div><b>Retest</b><span>Wait for price to return to the zone</span></div></div>
+</div>
+<button class="primary" style="margin-top:14px" onclick="runScan()">SCAN SETUP</button>
+<div class="status" id="status">Status: WAITING FOR SETUP</div>
+<div class="signal" id="signal"><h3>Possible setup detected</h3>
+<div class="mini"><span>Pair</span><strong id="sigPair">EUR/USD</strong></div>
+<div class="mini"><span>Direction</span><strong>BUY</strong></div>
+<div class="mini"><span>Setup</span><strong>Sweep → MSS → FVG → Retest</strong></div>
+<div class="warning">Prototype only. This does not connect to MT5 or place real trades. Confirm the setup manually before trading.</div>
+</div>
+</div>
+
+<div class="card"><label>RISK CONTROL</label><div class="row">
+<button id="risk1" class="active" onclick="setRisk(1)">1%</button><button id="risk2" onclick="setRisk(2)">2%</button><button id="risk3" onclick="setRisk(3)">Custom</button>
+</div><div class="status" id="riskText">Demo risk setting: 1%</div></div>
+
+<div class="card"><label>DEMO AUTO-SCAN</label><button id="auto" onclick="toggleAuto()">OFF — TAP TO ENABLE</button>
+<div class="status">Visual prototype only. It does not execute orders.</div></div>
+<div class="footer">Liquidity Hunter · iPhone prototype · Educational use</div>
+</div>
+<script>
+function setRisk(n){document.querySelectorAll('#risk1,#risk2,#risk3').forEach(x=>x.classList.remove('active'));document.getElementById(n==1?'risk1':n==2?'risk2':'risk3').classList.add('active');document.getElementById('riskText').textContent='Demo risk setting: '+(n==3?'Custom':n+'%')}
+function runScan(){['sweep','mss','fvg','ob','vp','retest'].forEach((id,i)=>setTimeout(()=>{let d=document.querySelector('#'+id+' .dot');d.classList.add('ok');d.textContent='✓'},i*280));setTimeout(()=>{document.getElementById('status').textContent='Status: POSSIBLE BUY SETUP — WAIT FOR CONFIRMATION';document.getElementById('sigPair').textContent=document.getElementById('pair').value;document.getElementById('signal').classList.add('show')},1900)}
+function toggleAuto(){let b=document.getElementById('auto'),on=b.classList.toggle('active');b.textContent=on?'ON — DEMO AUTO-SCAN ENABLED':'OFF — TAP TO ENABLE'}
+</script>
+</body>
+</html>
