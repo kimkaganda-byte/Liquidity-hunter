@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Liquidity Hunter</title>
+<style>
+:root{--bg:#070b14;--card:#101827;--line:#243047;--text:#f4f7fb;--muted:#93a0b5;--blue:#4da3ff;--green:#31d17c;--red:#ff6673;--amber:#ffc857}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:auto;padding:18px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{display:flex;gap:12px;align-items:center}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,#4da3ff,#7b61ff);display:grid;place-items:center;font-size:22px;font-weight:800}.brand h1{font-size:20px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:12px}.pill{border:1px solid #315276;border-radius:999px;padding:7px 11px;color:var(--green);font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:14px;box-shadow:0 10px 30px #0004}.hero{padding:20px}.hero h2{margin:0 0 5px;font-size:28px}.hero p{color:var(--muted);margin:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.select{width:100%;background:#0b1220;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px;font-size:15px}
+.status{display:flex;align-items:center;gap:10px}.dot{width:10px;height:10px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber)}.status b{font-size:15px}.small{font-size:12px;color:var(--muted);margin-top:5px}
+.steps{display:grid;gap:10px}.step{display:flex;gap:12px;align-items:flex-start;padding:13px;border:1px solid var(--line);border-radius:13px}.num{min-width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#17233a;color:var(--blue);font-weight:800}.step h3{margin:0 0 4px;font-size:15px}.step p{margin:0;color:var(--muted);font-size:12px;line-height:1.4}.ok{border-color:#225f45}.ok .num{color:var(--green);background:#102d23}
+.signal{border:1px solid #28445f;background:#0c1727;border-radius:15px;padding:16px}.signal b{font-size:20px}.buy{color:var(--green)}.sell{color:var(--red)}
+button{border:0;border-radius:12px;padding:12px 15px;font-weight:700;font-size:14px;cursor:pointer}.primary{background:var(--blue);color:#06101e}.ghost{background:#182236;color:var(--text);border:1px solid var(--line)}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+footer{text-align:center;color:#65738a;font-size:11px;padding:8px 0 22px}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.hero h2{font-size:24px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="brand"><div class="logo">LH</div><div><h1>Liquidity Hunter</h1><p>Trading setup dashboard · prototype</p></div></div>
+    <div class="pill">DEMO</div>
+  </header>
+
+  <section class="card hero">
+    <h2>Setup Scanner</h2>
+    <p>Liquidity sweep → structure shift → FVG → order block → retest</p>
+  </section>
+
+  <section class="card">
+    <div class="grid">
+      <div class="field"><label>PAIR</label><select class="select" id="pair"><option>EUR/USD</option><option>GBP/USD</option><option>USD/JPY</option><option>XAU/USD</option></select></div>
+      <div class="field"><label>TIMEFRAME</label><select class="select" id="tf"><option>M15</option><option>M5</option><option>M30</option><option>H1</option></select></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="status"><span class="dot" id="dot"></span><b id="status">WAITING FOR SETUP</b></div>
+    <div class="small" id="statusText">No trade signal is generated yet.</div>
+    <div class="buttons">
+      <button class="primary" onclick="simulate('BUY')">Test BUY setup</button>
+      <button class="ghost" onclick="simulate('SELL')">Test SELL setup</button>
+      <button class="ghost" onclick="resetSetup()">Reset</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3 style="margin-top:0">Setup checklist</h3>
+    <div class="steps">
+      <div class="step" id="s1"><div class="num">1</div><div><h3>Liquidity Sweep</h3><p>Wait for price to take a recent high or low and reject.</p></div></div>
+      <div class="step" id="s2"><div class="num">2</div><div><h3>Structure Shift</h3><p>Wait for confirmation that short-term structure has shifted.</p></div></div>
+      <div class="step" id="s3"><div class="num">3</div><div><h3>FVG</h3><p>Identify a fresh fair value gap created by the displacement.</p></div></div>
+      <div class="step" id="s4"><div class="num">4</div><div><h3>Order Block</h3><p>Mark the relevant supply/demand order-block zone.</p></div></div>
+      <div class="step" id="s5"><div class="num">5</div><div><h3>Retest</h3><p>Wait for price to return to the zone before considering an entry.</p></div></div>
+    </div>
+  </section>
+
+  <section class="card signal">
+    <div>Current test signal</div>
+    <b id="signal" style="display:block;margin-top:5px">NONE</b>
+    <div class="small">Prototype only — not connected to MT5 and does not place trades.</div>
+  </section>
+
+  <footer>Liquidity Hunter · iPhone-friendly prototype</footer>
+</main>
+<script>
+function simulate(side){
+  ['s1','s2','s3','s4','s5'].forEach((id,i)=>setTimeout(()=>document.getElementById(id).classList.add('ok'),i*180));
+  const status=document.getElementById('status'), text=document.getElementById('statusText'), signal=document.getElementById('signal'), dot=document.getElementById('dot');
+  status.textContent=side==='BUY'?'BUY SETUP TEST':'SELL SETUP TEST';
+  text.textContent=side==='BUY'?'Sweep low → bullish shift → FVG/OB retest':'Sweep high → bearish shift → FVG/OB retest';
+  signal.textContent=side;
+  signal.className=side==='BUY'?'buy':'sell';
+  dot.style.background=side==='BUY'?'var(--green)':'var(--red)';
+  dot.style.boxShadow=`0 0 12px ${side==='BUY'?'var(--green)':'var(--red)'}`;
+}
+function resetSetup(){
+  document.querySelectorAll('.step').forEach(x=>x.classList.remove('ok'));
+  document.getElementById('status').textContent='WAITING FOR SETUP';
+  document.getElementById('statusText').textContent='No trade signal is generated yet.';
+  document.getElementById('signal').textContent='NONE';
+  document.getElementById('signal').className='';
+  document.getElementById('dot').style.background='var(--amber)';
+  document.getElementById('dot').style.boxShadow='0 0 12px var(--amber)';
+}
+</script>
+</body>
+</html>
